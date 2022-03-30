@@ -1,0 +1,7 @@
+- name: Sysconfig directory
+  ansible.builtin.file:
+    state: directory
+    path: /etc/sysconfig
+    owner: root
+    group: root
+    mode: '0755'

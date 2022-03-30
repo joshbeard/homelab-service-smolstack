@@ -1,0 +1,62 @@
+- name: "Agate Gemini LXC Container on Proxmox"
+  hosts: proxmox
+  gather_facts: true
+  tasks:
+    # ------------------------------------------
+    # LXC Container
+    # ------------------------------------------
+    - include_role:
+        name: jbeard.proxmox_lxc
+      vars:
+        proxmox_lxc_list:
+          - hostname: gemini
+            description: 'Agate Gemini Server (Ubuntu) - gemini.home.jbeard.dev | Created and Managed with Ansible'
+            net0: name=eth0,bridge=vmbr0,ip=10.0.13.11/32,gw=10.0.13.1,firewall=0
+            ostemplate: local:vztmpl/ubuntu-21.04-standard_21.04-1_amd64.tar.gz
+            ssh_public_keys: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC3NO0A5ZE5YAxo16ZuoFjhC2OYzZ6XESGasooMG7GaB6PUjHaG4EWLq5ivDzy8sNO09HbatyzE6Uf0F+xMRa317RjNfWQfVT6SuZNQqVT/Z6Fq3bbQs7uAV7xnEcgtkQtVxQjuN0qwztliELSzF5jdAaXCy0CpoldfiKbgND1rqqUR8sGQN5OVcPkV3/v2klz+D+in4fktjwJhyx4ct1d4K/2DfRISSJUym3Ax8mR5vEfoJuo6OQca0sGiCbyrgn1XGoibW19Y67MeRMcc93y6nKM4N6rzPweWyug/8+X9jFDbnLL/OZfws6XFnhMGro8FuTMFbC6qUQXqPshnJGTeQrZurvTC6Pv/icKkO4wg7J17Ettob3yXpYaqMkTHl3Bfuc16JIUejuaTZpTYZVgPrx5A5Ze+wI3io4neF29S3YpZr4QJEes8ofPxIKYTsywdKfMOVyvlqv1OdAr7ChGhjkzNV8EIETM79EFIzBB3OMELf5fFbaSRJozsWIf63r71hT6QrnTizA1topYGS1l+fBZkvlE+Q9lXn4AvsrSmUYKO+HnbmWdUf/QVmXX9M4YE4FLas4iNJomlZs6P6G0zOKn0EWzjHNJteKdIZOLISg1wBJ6bEP7igX6eIM9hYIKweLWnIm83RZ6Xz0/YKnObyHTOWIImJ4fzD+08o+1AWQ== josh
+            password: bootstrap
+            rootfs: 'store:8'
+            cores: 1
+            memory: 2048
+            node: proxmox
+            swap: 512
+            start: true
+            storage: store
+            onboot: true
+            host_dirs:
+              - '/store/data/gemini'
+              - '/store/data/gopher'
+            mounts:
+              - '/store/data/gemini,mp=/var/gemini'
+              - '/store/data/gopher,mp=/var/gopher'
+
+# Base system playbook
+- import_playbook: jbeard.homelab.main
+  vars:
+    target: gemini
+
+- name: "Agate Gemini Server"
+  hosts: gemini
+  gather_facts: true
+  vars:
+    # Configuration for Agate/Gemini
+    agate_start_args: '--log-ip'
+    agate_hosts:
+      - jbeard.co
+      - gemini.jbeard.dev
+    # Configuration for Gophernicus/Gopher
+    gopher_hosts:
+      - jbeard.co
+    # Configuration for Finger2020/Finger
+    finger_name: josh
+    finger_contact_template_src: "{{ playbook_dir }}/templates/finger/contact.txt"
+    finger_plan_template_src: "{{ playbook_dir }}/templates/finger/plan.txt"
+    finger_project_template_src: "{{ playbook_dir }}/templates/finger/project.txt"
+    finger_src_repo: https://github.com/joshbeard/finger2020.git
+    finger_src_ref: info_labels
+    finger_info_labels: "false"
+  roles:
+    - pre
+    - agate
+    - gophernicus
+    - finger2020

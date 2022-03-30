@@ -1,0 +1,14 @@
+stages:
+  - deploy
+
+storage:
+  stage: deploy
+  image:
+    name: code.home.jbeard.dev:5050/homelab/platform/homelab-base/ansible-tool:latest
+    entrypoint: ['']
+  before_script:
+    - set -a
+    - cp $SSH_PRIVATE_KEY /home/ansible/.ssh/id_rsa && chmod 400 /home/ansible/.ssh/id_rsa
+  script:
+    - ansible-galaxy install -r requirements.yml
+    - ansible-playbook -i inventory.ini -u deployer -b main.yml

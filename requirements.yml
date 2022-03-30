@@ -1,0 +1,23 @@
+collections:
+  - name: https://code.home.jbeard.dev/homelab/platform/homelab-base.git
+    type: git
+
+roles:
+  - src: https://code.home.jbeard.dev/homelab/ansible/jbeard.proxmox_lxc.git
+    scm: git
+    name: jbeard.proxmox_lxc
+
+  - src: https://github.com/joshbeard/ansible-role-agate.git
+    scm: git
+    version: master
+    name: agate
+
+  - src: https://github.com/joshbeard/ansible-role-gophernicus.git
+    scm: git
+    version: master
+    name: gophernicus
+
+  - src: https://github.com/joshbeard/ansible-role-finger2020.git
+    scm: git
+    version: info_labels
+    name: finger2020
